@@ -208,6 +208,7 @@ class InceptionTimeClassifier(BaseClassifier):
         loss="categorical_crossentropy",
         metrics="accuracy",
         optimizer=None,
+        validation_data=None,
     ):
         self.n_classifiers = n_classifiers
 
@@ -246,6 +247,8 @@ class InceptionTimeClassifier(BaseClassifier):
         self.loss = loss
         self.metrics = metrics
         self.optimizer = optimizer
+
+        self.validation_data = validation_data
 
         self.classifiers_ = []
 
@@ -300,6 +303,7 @@ class InceptionTimeClassifier(BaseClassifier):
                 optimizer=self.optimizer,
                 random_state=rng.randint(0, np.iinfo(np.int32).max),
                 verbose=self.verbose,
+                validation_data=self.validation_data,
             )
             cls.fit(X, y)
             self.classifiers_.append(cls)
@@ -549,6 +553,7 @@ class IndividualInceptionClassifier(BaseDeepClassifier):
         loss="categorical_crossentropy",
         metrics="accuracy",
         optimizer=None,
+        validation_data=None,
     ):
         # predefined
         self.n_filters = n_filters
@@ -582,6 +587,8 @@ class IndividualInceptionClassifier(BaseDeepClassifier):
         self.loss = loss
         self.metrics = metrics
         self.optimizer = optimizer
+
+        self.validation_data = validation_data
 
         super().__init__(
             batch_size=batch_size,
@@ -672,6 +679,12 @@ class IndividualInceptionClassifier(BaseDeepClassifier):
         y_onehot = self.convert_y_to_keras(y)
         # Transpose to conform to Keras input style.
         X = X.transpose(0, 2, 1)
+        validation_data = None
+        if self.validation_data is not None:
+            X_val, y_val = self.validation_data
+            X_val = X_val.transpose(0, 2, 1)
+            y_val_onehot = self.convert_y_to_keras(y_val)
+            validation_data = (X_val, y_val_onehot)
 
         if isinstance(self.metrics, list):
             self._metrics = self.metrics
@@ -719,6 +732,7 @@ class IndividualInceptionClassifier(BaseDeepClassifier):
         self.history = self.training_model_.fit(
             X,
             y_onehot,
+            validation_data=validation_data,
             batch_size=mini_batch_size,
             epochs=self.n_epochs,
             verbose=self.verbose,
