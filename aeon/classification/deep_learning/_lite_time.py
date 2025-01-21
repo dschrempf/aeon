@@ -160,6 +160,7 @@ class LITETimeClassifier(BaseClassifier):
         metrics="accuracy",
         optimizer=None,
         validation_data=None,
+        dropout_rate=None,
     ):
         self.n_classifiers = n_classifiers
 
@@ -191,6 +192,7 @@ class LITETimeClassifier(BaseClassifier):
         self.optimizer = optimizer
 
         self.validation_data = validation_data
+        self.dropout_rate = dropout_rate
 
         self.classifiers_ = []
 
@@ -236,6 +238,7 @@ class LITETimeClassifier(BaseClassifier):
                 random_state=rng.randint(0, np.iinfo(np.int32).max),
                 verbose=self.verbose,
                 validation_data=self.validation_data,
+                dropout_rate=self.dropout_rate
             )
             cls.fit(X, y)
             self.classifiers_.append(cls)
@@ -458,6 +461,7 @@ class IndividualLITEClassifier(BaseDeepClassifier):
         metrics="accuracy",
         optimizer=None,
         validation_data=None,
+        dropout_rate=None,
     ):
         self.use_litemv = use_litemv
         self.n_filters = n_filters
@@ -483,6 +487,7 @@ class IndividualLITEClassifier(BaseDeepClassifier):
         self.optimizer = optimizer
 
         self.validation_data = validation_data
+        self.dropout_rate = dropout_rate
 
         super().__init__(
             batch_size=batch_size,
@@ -496,6 +501,8 @@ class IndividualLITEClassifier(BaseDeepClassifier):
             kernel_size=self.kernel_size,
             strides=self.strides,
             activation=self.activation,
+            dropout_rate=dropout_rate,
+            random_state=random_state
         )
 
     def build_model(self, input_shape, n_classes, **kwargs):

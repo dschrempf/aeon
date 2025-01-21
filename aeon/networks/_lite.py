@@ -63,12 +63,16 @@ class LITENetwork(BaseDeepLearningNetwork):
         kernel_size=40,
         strides=1,
         activation="relu",
+        dropout_rate=None,
+        random_state=None,
     ):
         self.use_litemv = use_litemv
         self.n_filters = n_filters
         self.kernel_size = kernel_size
         self.activation = activation
         self.strides = strides
+        self.dropout_rate = dropout_rate
+        self.random_state = random_state
 
         super().__init__()
 
@@ -346,6 +350,9 @@ class LITENetwork(BaseDeepLearningNetwork):
 
         x = tf.keras.layers.BatchNormalization()(x)
         x = tf.keras.layers.Activation(activation="relu")(x)
+
+        if self.dropout_rate is not None:
+            x = tf.keras.layers.Dropout(rate=self.dropout_rate, seed=self.random_state)(x)
 
         return x
 
